@@ -2,143 +2,134 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.StringTokenizer;
 
 public class BOJ15683 {
-    static BufferedReader reader;
-    static StringBuilder builder;
+    static int WALL = 6, EMPTY = 0, IS_CHECKED = 100;
 
-    // CCTV 및 벽 정보
+    static int[] dr = { 0, 1, 0, -1 };
+    static int[] dc = { 1, 0, -1, 0 };
+
     static int[][] map;
-    // 비추고 있는 곳 체크
-    static int[][] checkmap;
-
+    static int[][] tempMap;
     static int R, C;
 
-    // CCTV 위치
-    static List<CCTV> cctv;
-    // 방향
-    static int[] dr = { -1, 0, 1, 0 };
-    static int[] dc = { 0, 1, 0, -1 };
+    static ArrayList<int[]> cctv;
 
-    static int min;
+    static int min = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
-        reader = new BufferedReader(new InputStreamReader(System.in));
-        builder = new StringBuilder();
+        // 초기화 및 입력
+        init();
 
-        String[] input = reader.readLine().split(" ");
-        R = Integer.parseInt(input[0]);
-        C = Integer.parseInt(input[1]);
+        int cctvNum = cctv.size();
 
-        map = new int[R][C];
-        checkmap = new int[R][C];
+        // CCTV는 네가지의 설치 방향을 선택할 수 있음
+        for (int i = 0; i < (1 << (2 * cctvNum)); i++) {
+            copyMap();
+            int temp = i;
+            for (int cam = 0; cam < cctvNum; cam++) {
+                int dir = temp % 4;
+                temp /= 4;
 
-        min = R * C;
-
-        cctv = new ArrayList<>();
-
-        for (int r = 0; r < R; r++) {
-            input = reader.readLine().split(" ");
-            for (int c = 0; c < C; c++) {
-                map[r][c] = Integer.parseInt(input[c]);
-                if (map[r][c] > 0 && map[r][c] <= 5) {
-                    cctv.add(new CCTV(r, c));
+                int[] cur = cctv.get(cam);
+                int row = cur[0], col = cur[1];
+                switch (map[row][col]) {
+                    case 1:
+                        check(row, col, dir);
+                        break;
+                    case 2:
+                        check(row, col, dir);
+                        check(row, col, dir + 2);
+                        break;
+                    case 3:
+                        check(row, col, dir);
+                        check(row, col, dir + 3);
+                        break;
+                    case 4:
+                        check(row, col, dir);
+                        check(row, col, dir + 2);
+                        check(row, col, dir + 3);
+                        break;
+                    case 5:
+                        check(row, col, dir);
+                        check(row, col, dir + 1);
+                        check(row, col, dir + 2);
+                        check(row, col, dir + 3);
+                        break;
                 }
+            }
+
+            findMin();
+        }
+
+        System.out.println(min);
+    }
+
+    static void findMin() {
+        int blackSpace = 0;
+        for (int r = 0; r < R; r++) {
+            for (int c = 0; c < C; c++) {
+                if (tempMap[r][c] == EMPTY)
+                    blackSpace++;
             }
         }
 
-        solution();
-
-        System.out.println(min);
-
+        min = Integer.min(min, blackSpace);
     }
 
-    static void solution() {
-        for (int t = 0; t < (1 << (2 * cctv.size())); t++) {
-            // map 모양 복사(원상복구)
-            copyMap();
+    static void check(int row, int col, int direction) {
+        int nr = 0, nc = 0;
+        direction %= 4;
 
-            int num = t;
-            for (int cam = 0; cam < cctv.size(); cam++) {
-                int dir = num % 4;
-                num /= 4;
+        while (true) {
+            nr = row + dr[direction];
+            nc = col + dc[direction];
 
-                int row = cctv.get(cam).row;
-                int col = cctv.get(cam).col;
+            if (nr < 0 || nc < 0 || nr >= R || nc >= C)
+                break;
+            if (map[nr][nc] == WALL)
+                break;
 
-                // CCTV 유형
-                switch (map[row][col]) {
-                    case 1:
-                        upd(row, col, dir);
-                        break;
-                    case 2:
-                        upd(row, col, dir);
-                        upd(row, col, dir + 2);
-                        break;
-                    case 3:
-                        upd(row, col, dir);
-                        upd(row, col, dir + 1);
-                        break;
-                    case 4:
-                        upd(row, col, dir);
-                        upd(row, col, dir + 1);
-                        upd(row, col, dir + 2);
-                        break;
-                    default:
-                        upd(row, col, dir);
-                        upd(row, col, dir + 1);
-                        upd(row, col, dir + 2);
-                        upd(row, col, dir + 3);
-                        break;
-                }
-            }
+            // 빈 공간
+            if (map[nr][nc] == EMPTY)
+                tempMap[nr][nc] = IS_CHECKED;
 
-            int temp = 0;
-            for (int r = 0; r < R; r++) {
-                for (int c = 0; c < C; c++) {
-                    if (checkmap[r][c] == 0)
-                        temp++;
-                }
-            }
-
-            min = Math.min(min, temp);
+            row = nr;
+            col = nc;
         }
     }
 
     static void copyMap() {
         for (int r = 0; r < R; r++) {
             for (int c = 0; c < C; c++) {
-                checkmap[r][c] = map[r][c];
+                tempMap[r][c] = map[r][c];
             }
         }
     }
 
-    static void upd(int row, int col, int dir) {
-        dir %= 4;
-        while (true) {
-            row += dr[dir];
-            col += dc[dir];
+    static void init() throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-            if (row < 0 || col < 0 || row >= R || col >= C || map[row][col] == 6)
-                break;
+        StringTokenizer tokenizer = new StringTokenizer(reader.readLine(), " ");
 
-            if (map[row][col] != 0)
-                continue;
+        R = Integer.parseInt(tokenizer.nextToken());
+        C = Integer.parseInt(tokenizer.nextToken());
 
-            checkmap[row][col] = 7;
+        cctv = new ArrayList<>();
+        map = new int[R][C];
+        tempMap = new int[R][C];
+
+        for (int r = 0; r < R; r++) {
+            tokenizer = new StringTokenizer(reader.readLine(), " ");
+            for (int c = 0; c < C; c++) {
+                map[r][c] = Integer.parseInt(tokenizer.nextToken());
+
+                // CCTV 위치 저장
+                if (1 <= map[r][c] && map[r][c] <= 5) {
+                    cctv.add(new int[] { r, c });
+                }
+            }
         }
     }
-
-    static class CCTV {
-        int row;
-        int col;
-
-        public CCTV(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-    }
-
 }
