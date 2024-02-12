@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class BOJ15683 {
+public class Main {
     static int WALL = 6, EMPTY = 0, IS_CHECKED = 100;
 
     static int[] dr = { 0, 1, 0, -1 };
@@ -79,12 +79,12 @@ public class BOJ15683 {
     }
 
     static void check(int row, int col, int direction) {
-        int nr = 0, nc = 0;
+        int nr = row, nc = col;
         direction %= 4;
 
         while (true) {
-            nr = row + dr[direction];
-            nc = col + dc[direction];
+            nr += dr[direction];
+            nc += dc[direction];
 
             if (nr < 0 || nc < 0 || nr >= R || nc >= C)
                 break;
@@ -94,9 +94,6 @@ public class BOJ15683 {
             // 빈 공간
             if (map[nr][nc] == EMPTY)
                 tempMap[nr][nc] = IS_CHECKED;
-
-            row = nr;
-            col = nc;
         }
     }
 
