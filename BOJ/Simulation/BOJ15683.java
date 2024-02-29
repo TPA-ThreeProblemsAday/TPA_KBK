@@ -72,6 +72,9 @@ public class BOJ15683 {
             for (int c = 0; c < C; c++) {
                 if (tempMap[r][c] == EMPTY)
                     blackSpace++;
+                if (blackSpace > min) {
+                    return;
+                }
             }
         }
 
@@ -79,12 +82,12 @@ public class BOJ15683 {
     }
 
     static void check(int row, int col, int direction) {
-        int nr = 0, nc = 0;
+        int nr = row, nc = col;
         direction %= 4;
 
         while (true) {
-            nr = row + dr[direction];
-            nc = col + dc[direction];
+            nr += dr[direction];
+            nc += dc[direction];
 
             if (nr < 0 || nc < 0 || nr >= R || nc >= C)
                 break;
@@ -94,9 +97,6 @@ public class BOJ15683 {
             // 빈 공간
             if (map[nr][nc] == EMPTY)
                 tempMap[nr][nc] = IS_CHECKED;
-
-            row = nr;
-            col = nc;
         }
     }
 
