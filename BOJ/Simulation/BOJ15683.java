@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class BOJ15683 {
+public class Main {
     static int WALL = 6, EMPTY = 0, IS_CHECKED = 100;
 
     static int[] dr = { 0, 1, 0, -1 };
