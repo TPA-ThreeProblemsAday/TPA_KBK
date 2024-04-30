@@ -23,22 +23,24 @@ public class BOJ2910 {
 
         int temp = 0;
         tokenizer = new StringTokenizer(reader.readLine(), " ");
+        List<Integer> copy = new ArrayList<>();
+        List<Integer> keys = new ArrayList<>();
         while (N-- > 0) {
             temp = Integer.parseInt(tokenizer.nextToken());
-
-            if (map.get(temp) == null)
-                map.put(temp, 1);
-            else
-                map.put(temp, map.get(temp) + 1);
+            keys.add(temp);
+            copy.add(temp);
+            map.put(temp, map.getOrDefault(temp, 0) + 1);
         }
 
-        List<Integer> list = new ArrayList<>(map.keySet());
-        Collections.sort(list, (o1, o2) -> map.get(o2).compareTo(map.get(o1)));
+        Collections.sort(keys, (o1, o2) -> {
+            if (map.get(o1) == map.get(o2))
+                return copy.indexOf(o1) - copy.indexOf(o2);
+            return map.get(o2).compareTo(map.get(o1));
+        });
 
         String output = "";
-        for (int key : list) {
-            for (int i = 0; i < map.get(key); i++)
-                output += key + " ";
+        for (int key : keys) {
+            output += key + " ";
         }
         System.out.println(output);
     }
