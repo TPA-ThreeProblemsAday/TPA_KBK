@@ -7,7 +7,7 @@ public class BOJ2343 {
     static int N, M;
     static int[] arr;
 
-    static int lo, mid, hi, min = 100_001, ret = Integer.MAX_VALUE;
+    static int lo, mid, hi, ret;
 
     public static void main(String[] args) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -32,12 +32,13 @@ public class BOJ2343 {
             int cnt = getCnt(mid);
 
             if (cnt <= M) {
+                ret = mid;
                 hi = mid - 1;
             } else
                 lo = mid + 1;
         }
 
-        System.out.println(lo);
+        System.out.println(ret);
     }
 
     static int getCnt(int mid) {
