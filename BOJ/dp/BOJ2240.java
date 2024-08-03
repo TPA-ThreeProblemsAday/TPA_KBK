@@ -25,7 +25,7 @@ public class BOJ2240 {
             arr[i] = Integer.parseInt(reader.readLine());
 
         for (int t = 1; t <= T; t++) {
-            // w 값 - 반복문에 포함 시키기 위해 1부터 시작
+            // w 값 - 1부터 시작
             for (int w = 1; w <= W + 1; w++) {
 
                 if (arr[t] == 1) {
@@ -34,7 +34,6 @@ public class BOJ2240 {
                     // 그대로 있는 것 또는 움직인 것
                     dp[t][w][2] = Math.max(dp[t - 1][w][2], dp[t - 1][w - 1][1]);
                 } else {
-                    // t가 1초에는 무조건 1에서 시작하므로 continue
                     if (t == 1 && w == 1)
                         continue;
                     dp[t][w][1] = Math.max(dp[t - 1][w][1], dp[t - 1][w - 1][2]);
